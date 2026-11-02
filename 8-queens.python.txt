@@ -1,0 +1,52 @@
+
+# 8-Queens Problem using Backtracking
+
+N = 8
+board = [-1] * N
+
+def is_safe(row, col):
+    for prev_row in range(row):
+        prev_col = board[prev_row]
+
+        # Check same column and diagonals
+        if prev_col == col:
+            return False
+
+        if abs(prev_col - col) == abs(prev_row - row):
+            return False
+
+    return True
+
+
+def solve(row):
+    # All queens placed successfully
+    if row == N:
+        return True
+
+    # Try each column
+    for col in range(N):
+        if is_safe(row, col):
+            board[row] = col
+
+            if solve(row + 1):
+                return True
+
+            # Backtrack
+            board[row] = -1
+
+    return False
+
+
+# Solve and display the board
+if solve(0):
+    print("Solution for 8-Queens Problem:\n")
+
+    for row in range(N):
+        for col in range(N):
+            if board[row] == col:
+                print("Q", end=" ")
+            else:
+                print(".", end=" ")
+        print()
+else:
+    print("No solution exists.")

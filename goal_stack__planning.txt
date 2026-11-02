@@ -1,0 +1,130 @@
+
+# Goal Stack Planning - Blocks World
+
+def clear(block, state):
+    return all(block not in stack[:-1] for stack in state)
+
+
+def find_stack(block, state):
+    for stack in state:
+        if block in stack:
+            return stack
+    return None
+
+
+def display(state):
+    print([stack[:] for stack in state])
+
+
+def move_block(block, destination, state, plan):
+    source = find_stack(block, state)
+
+    if source is None:
+        return
+
+    if block in source:
+        source.remove(block)
+
+    if not source:
+        state.remove(source)
+
+    if destination == "Table":
+        state.append([block])
+        action = f"Move {block} to Table"
+    else:
+        dest_stack = find_stack(destination, state)
+        if dest_stack is None:
+            state.append([block])
+            action = f"Move {block} to Table"
+        else:
+            dest_stack.append(block)
+            action = f"Move {block} onto {destination}"
+
+    plan.append(action)
+
+
+def goal_stack_planning(initial, goal):
+    state = [stack[:] for stack in initial]
+    plan = []
+
+    # Place blocks in the order required by goal stacks
+    for goal_stack in goal:
+        for i, block in enumerate(goal_stack):
+            destination = "Table" if i == 0 else goal_stack[i - 1]
+
+            while True:
+                source = find_stack(block, state)
+
+                if source is None:
+                    state.append([block])
+                    break
+
+                if source[-1] == block:
+                    break
+
+                top_block = source[-1]
+                move_block(top_block, "Table", state, plan)
+
+            if destination != "Table":
+                while True:
+                    dest_stack = find_stack(destination, state)
+
+                    if dest_stack and dest_stack[-1] == destination:
+                        break
+
+                    dest_source = find_stack(destination, state)
+                    if dest_source is None or not dest_source:
+                        break
+
+                    top_block = dest_source[-1]
+                    move_block(top_block, "Table", state, plan)
+
+                source = find_stack(block, state)
+                dest_stack = find_stack(destination, state)
+
+                if source and dest_stack and source != dest_stack:
+                    move_block(block, destination, state, plan)
+
+    return plan, state
+
+
+# User input
+n = int(input("Enter number of blocks: "))
+blocks = input("Enter block names separated by spaces: ").split()
+
+if n <= 0 or len(blocks) != n or len(set(blocks)) != n:
+    print("Invalid block input.")
+    raise SystemExit
+
+print("Enter initial configuration.")
+print("Enter each stack from bottom to top.")
+initial = []
+
+for i in range(int(input("Number of initial stacks: "))):
+    stack = input(f"Stack {i + 1}: ").split()
+    if stack:
+        initial.append(stack)
+
+print("Enter goal configuration.")
+goal = []
+
+for i in range(int(input("Number of goal stacks: "))):
+    stack = input(f"Goal stack {i + 1}: ").split()
+    if stack:
+        goal.append(stack)
+
+# Validate configurations
+all_blocks = sorted(blocks)
+
+if (sorted(b for s in initial for b in s) != all_blocks or
+        sorted(b for s in goal for b in s) != all_blocks):
+    print("Invalid configuration: each block must appear exactly once.")
+else:
+    plan, final_state = goal_stack_planning(initial, goal)
+
+    print("\nPlan:")
+    for step, action in enumerate(plan, 1):
+        print(f"Step {step}: {action}")
+
+    print("\nFinal configuration:")
+    display(final_state)

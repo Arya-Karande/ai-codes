@@ -1,0 +1,58 @@
+
+import re
+import random
+
+# Predefined patterns and responses
+rules = [
+    (r"hello|hi|hey", [
+        "Hello! How can I help you?",
+        "Hi! Nice to meet you."
+    ]),
+    (r"how are you", [
+        "I am fine. How are you?",
+        "I am doing great!"
+    ]),
+    (r"your name|who are you", [
+        "I am a simple chatbot.",
+        "You can call me ChatBot."
+    ]),
+    (r"your age", [
+        "I do not have an age like humans."
+    ]),
+    (r"what is ai|artificial intelligence", [
+        "AI enables machines to perform tasks that require human intelligence."
+    ]),
+    (r"thank you|thanks", [
+        "You are welcome!",
+        "Happy to help!"
+    ]),
+    (r"bye|goodbye|exit", [
+        "Goodbye! Have a nice day!"
+    ])
+]
+
+print("ChatBot: Hello! Type 'bye' to exit.")
+
+while True:
+    user_input = input("You: ").lower().strip()
+
+    if not user_input:
+        print("ChatBot: Please enter something.")
+        continue
+
+    response_found = False
+
+    for pattern, responses in rules:
+        if re.search(pattern, user_input):
+            print("ChatBot:", random.choice(responses))
+            response_found = True
+
+            if re.search(r"\b(bye|goodbye|exit)\b", pattern) and re.search(
+                r"\b(bye|goodbye|exit)\b", user_input
+            ):
+                raise SystemExit
+
+            break
+
+    if not response_found:
+        print("ChatBot: Sorry, I don't understand that.")

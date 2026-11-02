@@ -1,0 +1,71 @@
+
+# Tower of Hanoi using State Space Search
+from collections import deque
+
+def solve_hanoi(n):
+    start = tuple([0] * n)
+    goal = tuple([2] * n)
+
+    queue = deque([(start, [])])
+    visited = {start}
+
+    while queue:
+        state, path = queue.popleft()
+
+        if state == goal:
+            return path
+
+        rods = [[], [], []]
+
+        # Arrange disks on rods
+        for disk in range(n):
+            rods[state[disk]].append(disk)
+
+        # Generate valid moves
+        for source in range(3):
+            if not rods[source]:
+                continue
+
+            disk = rods[source][0]
+
+            for destination in range(3):
+                if source == destination:
+                    continue
+
+                if (not rods[destination] or
+                        disk < rods[destination][0]):
+
+                    new_state = list(state)
+                    new_state[disk] = destination
+                    new_state = tuple(new_state)
+
+                    if new_state not in visited:
+                        visited.add(new_state)
+
+                        move = (
+                            f"Move disk {disk + 1} "
+                            f"from rod {source + 1} "
+                            f"to rod {destination + 1}"
+                        )
+
+                        queue.append(
+                            (new_state, path + [move])
+                        )
+
+    return None
+
+
+# User input
+n = int(input("Enter number of disks: "))
+
+if n <= 0:
+    print("Enter a positive number of disks.")
+else:
+    moves = solve_hanoi(n)
+
+    print("\nSolution:")
+    for i, move in enumerate(moves, start=1):
+        print(f"Step {i}: {move}")
+
+    print("\nTotal moves:", len(moves))
+

@@ -1,0 +1,57 @@
+
+# Water Jug Problem using DFS
+
+def water_jug(capacity1, capacity2, target):
+    stack = [((0, 0), [])]
+    visited = set()
+
+    while stack:
+        (a, b), path = stack.pop()
+
+        if (a, b) in visited:
+            continue
+
+        visited.add((a, b))
+        path = path + [(a, b)]
+
+        # Goal state
+        if a == target or b == target:
+            return path
+
+        # Generate possible states
+        next_states = [
+            (capacity1, b),                  # Fill jug 1
+            (a, capacity2),                  # Fill jug 2
+            (0, b),                          # Empty jug 1
+            (a, 0),                          # Empty jug 2
+            (a - min(a, capacity2 - b),
+             b + min(a, capacity2 - b)),     # Pour jug 1 into jug 2
+            (a + min(b, capacity1 - a),
+             b - min(b, capacity1 - a))      # Pour jug 2 into jug 1
+        ]
+
+        for state in next_states:
+            if state not in visited:
+                stack.append((state, path))
+
+    return None
+
+
+# Take user input
+capacity1 = int(input("Enter capacity of Jug 1: "))
+capacity2 = int(input("Enter capacity of Jug 2: "))
+target = int(input("Enter target amount: "))
+
+if (capacity1 <= 0 or capacity2 <= 0 or
+        target < 0 or target > max(capacity1, capacity2)):
+    print("Invalid capacities or target.")
+else:
+    solution = water_jug(capacity1, capacity2, target)
+
+    if solution:
+        print("\nSolution path:")
+        for step, state in enumerate(solution):
+            print(f"Step {step}: Jug 1 = {state[0]}L, "
+                  f"Jug 2 = {state[1]}L")
+    else:
+        print("No solution exists.")
